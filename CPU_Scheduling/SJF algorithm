@@ -1,0 +1,54 @@
+import java.util.Arrays;
+import java.util.Comparator;
+
+public class SJF {
+
+    static class Process {
+        String name;
+        int burstTime;
+        int waitingTime;
+
+        public Process(String name, int burstTime) {
+            this.name = name;
+            this.burstTime = burstTime;
+            this.waitingTime = 0;
+        }
+    }
+
+    public static void calculateWaitingTime(Process[] processes) {
+        Arrays.sort(processes, Comparator.comparingInt(p -> p.burstTime));
+
+        processes[0].waitingTime = 0;
+
+        for (int i = 1; i < processes.length; i++) {
+            processes[i].waitingTime = processes[i - 1].waitingTime + processes[i - 1].burstTime;
+        }
+    }
+
+    public static float calculateAverageWaitingTime(Process[] processes) {
+         float totalWaitingTime = 0;
+        for (Process process : processes) {
+            totalWaitingTime += process.waitingTime;
+        }
+        return totalWaitingTime / processes.length;
+    }
+
+    public static void main(String[] args) {
+        Process[] processes = {
+                new Process("P1", 6),
+                new Process("P2", 8),
+                new Process("P3", 7),
+                new Process("P4", 3)
+        };
+
+        calculateWaitingTime(processes);
+
+        System.out.println("Process\tBurst Time\tWaiting Time");
+        for (Process process : processes) {
+            System.out.println(process.name + "\t\t" + process.burstTime + "\t\t" + process.waitingTime);
+        }
+
+        float averageWaitingTime = calculateAverageWaitingTime(processes);
+         System.out.println("Average Waiting Time: " + averageWaitingTime);
+    }
+}
