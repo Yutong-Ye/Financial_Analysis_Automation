@@ -4,3 +4,73 @@ System processes
 Interactive processes
 Batch processes
 */
+
+import java.util.*;
+
+class Process {
+    int pid;
+    int arrivalTime;
+    int burstTime;
+    int remainingTime;
+
+    public Process(int pid, int arrivalTime, int burstTime) {
+        this.pid = pid;
+        this.arrivalTime = arrivalTime;
+        this.burstTime = burstTime;
+        this.remainingTime = burstTime;
+    }
+}
+
+public class MultilevelQueueScheduler {
+
+    static final int TIME_QUANTUM = 3; // For Round Robin (Queue 1)
+
+    public static void main(String[] args) {
+        List<Process> queue1 = new ArrayList<>(); // High priority: Round Robin
+        List<Process> queue2 = new ArrayList<>(); // Low priority: FCFS
+
+        // Add some processes
+        queue1.add(new Process(1, 0, 6));
+        queue1.add(new Process(2, 1, 4));
+
+        queue2.add(new Process(3, 2, 5));
+        queue2.add(new Process(4, 3, 3));
+
+        simulateMultilevelQueue(queue1, queue2);
+    }
+
+    public static void simulateMultilevelQueue(List<Process> queue1, List<Process> queue2) {
+        Queue<Process> rrQueue = new LinkedList<>(queue1);
+        Queue<Process> fcfsQueue = new LinkedList<>(queue2);
+
+        int time = 0;
+
+        System.out.println("Starting Multilevel Queue Scheduling...\n");
+
+        // First process queue1 (Round Robin)
+        while (!rrQueue.isEmpty()) {
+            Process p = rrQueue.poll();
+            int execTime = Math.min(TIME_QUANTUM, p.remainingTime);
+            System.out.println("Time " + time + ": Process " + p.pid + " from Queue 1 is running for " + execTime + " units.");
+            time += execTime;
+            p.remainingTime -= execTime;
+
+            if (p.remainingTime > 0) {
+                rrQueue.add(p); // Re-queue for RR
+            } else {
+                System.out.println("Process " + p.pid + " from Queue 1 completed.");
+            }
+        }
+
+        // Then process queue2 (FCFS)
+        while (!fcfsQueue.isEmpty()) {
+            Process p = fcfsQueue.poll();
+            System.out.println("Time " + time + ": Process " + p.pid + " from Queue 2 is running for " + p.burstTime + " units.");
+            time += p.burstTime;
+            System.out.println("Process " + p.pid + " from Queue 2 completed.");
+        }
+
+        System.out.println("\nAll processes completed at time " + time);
+    }
+}
+
