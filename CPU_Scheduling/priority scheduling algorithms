@@ -1,1 +1,47 @@
 //A major problem with priority scheduling algorithms is indefinite blocking, or starvation. A process that is ready to run but waiting for the CPU can be considered blocked. A priority scheduling algorithm can leave some low-priority processes waiting indefinitely.
+import java.util.*;
+
+class Job {
+    int id;
+    int burstTime;
+    int priority;
+
+    public Job(int id, int burstTime, int priority) {
+        this.id = id;
+        this.burstTime = burstTime;
+        this.priority = priority;
+    }
+}
+
+public class PriorityScheduling {
+    public static void main(String[] args) {
+        List<Job> jobs = new ArrayList<>();
+        jobs.add(new Job(1, 10, 2));
+        jobs.add(new Job(2, 5, 1));
+        jobs.add(new Job(3, 8, 3));
+
+        // Sort by priority (lower value = higher priority)
+        jobs.sort(Comparator.comparingInt(job -> job.priority));
+
+        int waitingTime = 0;
+        int totalWaitingTime = 0;
+        int totalTurnaroundTime = 0;
+
+        System.out.println("Job\tBurst\tPriority\tWaiting\tTurnaround");
+
+        for (Job job : jobs) {
+            int turnaroundTime = waitingTime + job.burstTime;
+            totalWaitingTime += waitingTime;
+            totalTurnaroundTime += turnaroundTime;
+
+            System.out.printf("%d\t%d\t%d\t\t%d\t%d\n",
+                job.id, job.burstTime, job.priority, waitingTime, turnaroundTime);
+
+            waitingTime += job.burstTime;
+        }
+
+        int n = jobs.size();
+        System.out.printf("\nAverage Waiting Time: %.2f", (float)totalWaitingTime / n);
+        System.out.printf("\nAverage Turnaround Time: %.2f", (float)totalTurnaroundTime / n);
+    }
+}
