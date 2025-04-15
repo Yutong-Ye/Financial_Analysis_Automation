@@ -7,26 +7,31 @@ public class SJF {
         String name;
         int burstTime;
         int waitingTime;
+        int turnaroundTime;
 
         public Process(String name, int burstTime) {
             this.name = name;
             this.burstTime = burstTime;
             this.waitingTime = 0;
+            this.turnaroundTime = 0;
         }
     }
 
-    public static void calculateWaitingTime(Process[] processes) {
+    public static void calculateTimes(Process[] processes) {
         Arrays.sort(processes, Comparator.comparingInt(p -> p.burstTime));
 
         processes[0].waitingTime = 0;
+        processes[0].turnaroundTime = processes[0].burstTime;
 
         for (int i = 1; i < processes.length; i++) {
-            processes[i].waitingTime = processes[i - 1].waitingTime + processes[i - 1].burstTime;
+            processes[i].waitingTime = processes[i - 1].turnaroundTime;
+            processes[i].turnaroundTime = processes[i].waitingTime + processes[i].burstTime;
         }
     }
 
     public static float calculateAverageWaitingTime(Process[] processes) {
-         float totalWaitingTime = 0;
+        if (processes.length == 0) return 0; // handle empty array
+        float totalWaitingTime = 0;
         for (Process process : processes) {
             totalWaitingTime += process.waitingTime;
         }
@@ -41,14 +46,18 @@ public class SJF {
                 new Process("P4", 3)
         };
 
-        calculateWaitingTime(processes);
+        calculateTimes(processes);
 
-        System.out.println("Process\tBurst Time\tWaiting Time");
+        System.out.println("Process\tBurst Time\tWaiting Time\tTurnaround Time");
         for (Process process : processes) {
-            System.out.println(process.name + "\t\t" + process.burstTime + "\t\t" + process.waitingTime);
+            System.out.printf("%s\t\t%d\t\t%d\t\t%d\n",
+                    process.name,
+                    process.burstTime,
+                    process.waitingTime,
+                    process.turnaroundTime);
         }
 
         float averageWaitingTime = calculateAverageWaitingTime(processes);
-         System.out.println("Average Waiting Time: " + averageWaitingTime);
+        System.out.printf("Average Waiting Time: %.2f\n", averageWaitingTime);
     }
 }
