@@ -18,8 +18,10 @@ public class SJF {
     }
 
     public static void calculateTimes(Process[] processes) {
+        // Sort processes by burst time (SJF)
         Arrays.sort(processes, Comparator.comparingInt(p -> p.burstTime));
 
+        // Calculate waiting and turnaround times
         processes[0].waitingTime = 0;
         processes[0].turnaroundTime = processes[0].burstTime;
 
@@ -30,12 +32,35 @@ public class SJF {
     }
 
     public static float calculateAverageWaitingTime(Process[] processes) {
-        if (processes.length == 0) return 0; // handle empty array
+        if (processes.length == 0) return 0;
         float totalWaitingTime = 0;
         for (Process process : processes) {
             totalWaitingTime += process.waitingTime;
         }
         return totalWaitingTime / processes.length;
+    }
+
+    public static float calculateAverageTurnaroundTime(Process[] processes) {
+        if (processes.length == 0) return 0;
+        float totalTurnaroundTime = 0;
+        for (Process process : processes) {
+            totalTurnaroundTime += process.turnaroundTime;
+        }
+        return totalTurnaroundTime / processes.length;
+    }
+
+    public static void printGanttChart(Process[] processes) {
+        System.out.println("\nGantt Chart:");
+        System.out.print("|");
+        for (Process process : processes) {
+            System.out.print(" " + process.name + " |");
+        }
+        System.out.println("\n0" + 
+            Arrays.stream(processes)
+                 .mapToInt(p -> p.turnaroundTime)
+                 .collect(StringBuilder::new, 
+                         (sb, time) -> sb.append(String.format("%" + (time > 9 ? 3 : 2) + "d", time)),
+                         StringBuilder::append));
     }
 
     public static void main(String[] args) {
@@ -46,8 +71,14 @@ public class SJF {
                 new Process("P4", 3)
         };
 
+        System.out.println("Initial Process Order:");
+        for (Process process : processes) {
+            System.out.println(process.name + " - Burst Time: " + process.burstTime);
+        }
+
         calculateTimes(processes);
 
+        System.out.println("\nScheduling Results:");
         System.out.println("Process\tBurst Time\tWaiting Time\tTurnaround Time");
         for (Process process : processes) {
             System.out.printf("%s\t\t%d\t\t%d\t\t%d\n",
@@ -57,7 +88,11 @@ public class SJF {
                     process.turnaroundTime);
         }
 
-        float averageWaitingTime = calculateAverageWaitingTime(processes);
-        System.out.printf("Average Waiting Time: %.2f\n", averageWaitingTime);
+        printGanttChart(processes);
+
+        float avgWaitingTime = calculateAverageWaitingTime(processes);
+        float avgTurnaroundTime = calculateAverageTurnaroundTime(processes);
+        System.out.printf("\nAverage Waiting Time: %.2f\n", avgWaitingTime);
+        System.out.printf("Average Turnaround Time: %.2f\n", avgTurnaroundTime);
     }
 }
